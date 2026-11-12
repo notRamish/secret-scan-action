@@ -96,8 +96,8 @@ runs:
         [ -n "$ADDITIONAL_ARGUMENTS" ] && ARGS="$ARGS $ADDITIONAL_ARGUMENTS"
 
         echo "Running AccuKnox secret scan..."
-        echo "./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\"
-        ./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS" --container-mode
+        echo "./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\" "
+        ./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS"
 
         cp results.jsonl results-secret.jsonl
 
