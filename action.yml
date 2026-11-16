@@ -86,7 +86,7 @@ runs:
         fi
 
         # Build base command
-        BASE_CMD="git file://."
+        BASE_CMD="filesystem ."
         if [ -n "$BASE_COMMAND" ]; then
           BASE_CMD="$BASE_COMMAND"
         fi
