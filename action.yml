@@ -106,7 +106,7 @@ runs:
         echo "./accuknox-aspm-scanner scan $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\" "
         ./accuknox-aspm-scanner scan $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS"
 
-        cp results.jsonl results-secret.jsonl
+#        cp results.jsonl results-secret.jsonl
 
 
 #    - name: Upload secret scan artifact
