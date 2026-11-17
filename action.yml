@@ -31,10 +31,6 @@ inputs:
     description: "Do not return an error code if there are failed checks"
     required: false
     default: "false"
-  base_command:
-    description: "Override the base command used to run the scan (optional)"
-    required: false
-    default: ""
   upload_results:
     description: "Upload scan results as GitHub artifact"
     required: false
@@ -53,10 +49,12 @@ runs:
         EXCLUDE_PATHS: ${{ inputs.exclude_paths }}
         ADDITIONAL_ARGUMENTS: ${{ inputs.additional_arguments }}
         SOFT_FAIL: ${{ inputs.soft_fail }}
-        BASE_COMMAND: ${{ inputs.base_command }}
         UPLOAD_RESULTS: ${{ inputs.upload_results }}
       run: |
         set -e
+
+        EXCLUDE_FILE=""
+        trap '[ -n "$EXCLUDE_FILE" ] && rm -f "$EXCLUDE_FILE"' EXIT
 
         if [ -z "$ACCUKNOX_TOKEN" ] || [ -z "$ACCUKNOX_LABEL" ] || [ -z "$ACCUKNOX_ENDPOINT" ]; then
           echo "ERROR: token, label, and endpoint must be provided!"
@@ -82,9 +80,6 @@ runs:
 
         # Build base command
         BASE_CMD="filesystem ."
-        if [ -n "$BASE_COMMAND" ]; then
-          BASE_CMD="$BASE_COMMAND"
-        fi
 
         # Add optional CLI arguments
         ARGS=""
@@ -110,8 +105,6 @@ runs:
         echo "Running AccuKnox secret scan..."
         echo "./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\" "
         ./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS"
-
-        [ -n "$EXCLUDE_FILE" ] && rm -f "$EXCLUDE_FILE"
 
         cp results.jsonl results-secret.jsonl
 
