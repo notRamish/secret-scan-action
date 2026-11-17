@@ -19,12 +19,8 @@ inputs:
     description: "Which result types to include: verified, unknown, unverified, filtered_unverified"
     required: false
     default: ""
-  branch:
-    description: "Git branch to scan. Use 'all-branches' to scan all branches"
-    required: false
-    default: ""
   exclude_paths:
-    description: "Comma-separated list of paths to exclude from scanning"
+    description: "Comma-separated paths to exclude from filesystem scanning"
     required: false
     default: ""
   additional_arguments:
@@ -54,7 +50,6 @@ runs:
         ACCUKNOX_LABEL: ${{ inputs.accuknox_label }}
         ACCUKNOX_ENDPOINT: ${{ inputs.accuknox_endpoint }}
         RESULTS: ${{ inputs.results }}
-        BRANCH: ${{ inputs.branch }}
         EXCLUDE_PATHS: ${{ inputs.exclude_paths }}
         ADDITIONAL_ARGUMENTS: ${{ inputs.additional_arguments }}
         SOFT_FAIL: ${{ inputs.soft_fail }}
@@ -94,13 +89,29 @@ runs:
         # Add optional CLI arguments
         ARGS=""
         [ -n "$RESULTS" ] && ARGS="$ARGS --results $RESULTS"
-        [ -n "$BRANCH" ] && ARGS="$ARGS --branch $BRANCH"
-        [ -n "$EXCLUDE_PATHS" ] && ARGS="$ARGS --exclude-paths $EXCLUDE_PATHS"
+        
+        EXCLUDE_FILE=""
+
+        if [ -n "$EXCLUDE_PATHS" ]; then
+          EXCLUDE_FILE=$(mktemp)
+
+          IFS=',' read -ra PATHS <<< "$EXCLUDE_PATHS"
+
+          for path in "${PATHS[@]}"; do
+            path=$(echo "$path" | xargs)
+            [ -n "$path" ] && printf '%s\n' "$path" >> "$EXCLUDE_FILE"
+          done
+
+          ARGS="$ARGS --exclude-paths $EXCLUDE_FILE"
+        fi
+
         [ -n "$ADDITIONAL_ARGUMENTS" ] && ARGS="$ARGS $ADDITIONAL_ARGUMENTS"
 
         echo "Running AccuKnox secret scan..."
         echo "./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\" "
         ./accuknox-aspm-scanner scan --keep-results $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS"
+
+        [ -n "$EXCLUDE_FILE" ] && rm -f "$EXCLUDE_FILE"
 
         cp results.jsonl results-secret.jsonl
 
