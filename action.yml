@@ -106,15 +106,15 @@ runs:
         echo "./accuknox-aspm-scanner scan $SOFT_FAIL_ARG secret --command \"$BASE_CMD $ARGS\" "
         ./accuknox-aspm-scanner scan $SOFT_FAIL_ARG secret --command "$BASE_CMD $ARGS"
 
-#        cp results.jsonl results-secret.jsonl
+        cp results.jsonl results-secret.jsonl
 
 
-#    - name: Upload secret scan artifact
-#      if: ${{ inputs.upload_results == 'true' }}
-#      uses: actions/upload-artifact@v4
-#      with:
-#        name: secret-scan-results
-#        path: results-secret.jsonl
-#        if-no-files-found: error
-#        retention-days: 30
+    - name: Upload secret scan artifact
+      if: ${{ inputs.upload_results == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: secret-scan-results
+        path: results-secret.jsonl
+        if-no-files-found: error
+        retention-days: 30
       
